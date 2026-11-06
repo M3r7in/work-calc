@@ -1,0 +1,128 @@
+<main class="calculator">
+  <header class="page-header">
+    <h1>Arbeitszeit-Rechner</h1>
+  </header>
+
+  <section class="target-card" aria-labelledby="target-heading">
+    <svg lucideTarget class="target-icon" aria-hidden="true"></svg>
+    <label id="target-heading" for="target-time">Soll-Arbeitszeit:</label>
+    <input
+      id="target-time"
+      inputmode="numeric"
+      maxlength="5"
+      pattern="^([01]\d|2[0-3]):[0-5]\d$"
+      placeholder="00:00"
+      [value]="targetDraft()"
+      (input)="updateTargetDraft($event)"
+      (blur)="commitTarget()"
+    >
+  </section>
+
+  <section class="time-inputs" aria-label="Arbeitszeiten">
+    <div class="period-row">
+      @for (period of periods(); track $index; let index = $index) {
+        <article class="time-card start-card">
+          <div class="field-header">
+            <svg lucidePlay class="field-icon start-icon" aria-hidden="true"></svg>
+            <h2>Start Time</h2>
+          </div>
+          <input
+            [id]="'start-' + index"
+            type="text"
+            inputmode="numeric"
+            maxlength="5"
+            placeholder="00:00"
+            [value]="period.start"
+            [attr.aria-label]="'Start Time für Zeitraum ' + (index + 1)"
+            (input)="updatePeriod(index, 'start', $event)"
+            (blur)="normalizePeriodTime(index, 'start')"
+          >
+          <button class="quick-button" type="button" (click)="setTimeToNow(index, 'start')">
+            Jetzt ({{ currentTimeLabel() }})
+          </button>
+        </article>
+
+        <article class="time-card end-card">
+          <div class="field-header">
+            <svg lucideSquare class="field-icon end-icon" aria-hidden="true"></svg>
+            <h2>End Time</h2>
+          </div>
+          <input
+            [id]="'end-' + index"
+            type="text"
+            inputmode="numeric"
+            maxlength="5"
+            placeholder="00:00"
+            [value]="period.end"
+            [attr.aria-label]="'End Time für Zeitraum ' + (index + 1)"
+            (input)="updatePeriod(index, 'end', $event)"
+            (blur)="normalizePeriodTime(index, 'end')"
+          >
+          <button class="quick-button" type="button" (click)="setTimeToNow(index, 'end')">
+            Jetzt ({{ currentTimeLabel() }})
+          </button>
+        </article>
+
+        <article class="time-card break-card">
+          <div class="field-header">
+            <svg lucideCoffee class="field-icon break-icon" aria-hidden="true"></svg>
+            <h2>Break (min)</h2>
+          </div>
+          <input
+            [id]="'pause-' + index"
+            type="text"
+            inputmode="numeric"
+            maxlength="3"
+            placeholder="30"
+            [value]="period.pause || ''"
+            [attr.aria-label]="'Break in Minuten für Zeitraum ' + (index + 1)"
+            (input)="updatePeriod(index, 'pause', $event)"
+          >
+          <div class="break-options" aria-label="Pausendauer auswählen">
+            @for (minutes of [15, 30, 45, 60]; track minutes) {
+              <button class="quick-button" type="button" (click)="setPause(index, minutes)">{{ minutes }}</button>
+            }
+          </div>
+        </article>
+
+        <button
+          class="remove-button"
+          type="button"
+          [disabled]="periods().length === 1"
+          [attr.aria-label]="'Zeitraum ' + (index + 1) + ' entfernen'"
+          title="Zeitraum entfernen"
+          (click)="removePeriod(index)"
+        >
+          <svg lucideTrash aria-hidden="true" [size]="20"></svg>
+        </button>
+      }
+    </div>
+
+    <button class="add-button" type="button" (click)="addPeriod()">Neue Zeile</button>
+  </section>
+
+  @if (hasStartedPeriod() && targetMinutes()) {
+    <section class="summary" aria-labelledby="summary-heading" aria-live="polite">
+      <header class="summary-heading">
+        <svg lucideCircleCheckBig class="summary-icon" aria-hidden="true"></svg>
+        <h2 id="summary-heading">Arbeitszeit-Bilanz</h2>
+      </header>
+      <dl class="summary-values">
+        <div>
+          <dt>Gesamte Arbeitszeit:</dt>
+          <dd class="total-value">{{ formatMinutes(totalMinutesWorked()) }}</dd>
+        </div>
+        <div>
+          <dt>Überstunden:</dt>
+          <dd [class.positive]="overtimeMinutes() >= 0" [class.negative]="overtimeMinutes() < 0">
+            {{ formattedOvertime() }}
+          </dd>
+        </div>
+        <div>
+          <dt>Feierabend um:</dt>
+          <dd class="leave-value">{{ leaveAt() === null ? '' : formatMinutes(leaveAt()!) }}</dd>
+        </div>
+      </dl>
+    </section>
+  }
+</main>

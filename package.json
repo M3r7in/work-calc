@@ -1,0 +1,26 @@
+{
+  "name": "work-calculator-reconstructed",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "build:gh-pages": "ng build --base-href /work-calc/"
+  },
+  "dependencies": {
+    "@angular/common": "^22.2.4",
+    "@angular/compiler": "^22.2.4",
+    "@angular/core": "^22.2.4",
+    "@angular/platform-browser": "^22.2.4",
+    "@lucide/angular": "^1.69.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.8.0",
+    "zone.js": "^0.16.3"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.6",
+    "@angular/cli": "^22.2.6",
+    "@angular/compiler-cli": "^22.2.4",
+    "typescript": "~6.0.0"
+  }
+}
